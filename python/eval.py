@@ -96,7 +96,7 @@ def get_rephoto_diff(rephoto_path, sparse_model, frame_idx, predict_depth, mask 
 
 	# Loop through all neighbors.
 	for (idx, neighbor_idx) in enumerate(target_image.neighbor_list):
-		print "  Warping neighbor No. {:d}/{:d}".format(idx, num_neighbors)
+		print("  Warping neighbor No. {:d}/{:d}".format(idx, num_neighbors))
 		# Get neighbor image and camera pose.
 		n_image = sparse_model.image_list.images[neighbor_idx]
 		n_camera = sparse_model.camera_list.get_by_id(n_image.camera_id)
@@ -149,15 +149,15 @@ def get_rephoto_diff(rephoto_path, sparse_model, frame_idx, predict_depth, mask 
 	return diff[valid_mask]
 
 # Load COLMAP sparse model.
-print "Loading the sparse model..."
+print("Loading the sparse model...")
 sparse_model = ColmapSparse(sparse_path, image_path, image_width, image_height)
-print "Successfully loaded the sparse model."
+print( "Successfully loaded the sparse model.")
 
 # Loop through all reference images.
 errors_L1 = []
 errors_rephoto = []
 for (frame_idx, frame) in enumerate(sparse_model.image_list.images):
-	print "Processing reference image No. {:d}/{:d}".format(frame_idx, sparse_model.image_list.length)
+	print("Processing reference image No. {:d}/{:d}".format(frame_idx, sparse_model.image_list.length))
 
 	# Load ground truth depths.
 	gt_depth = np.load("{:}/{:}.depth.npy".format(gt_path, frame.filename))
@@ -218,7 +218,7 @@ for (frame_idx, frame) in enumerate(sparse_model.image_list.images):
 
 # Report errors:
 mean_L1 = np.mean(errors_L1)
-print "Disparity L1 error = {:f}, number of valid pixels = {:d}".format(mean_L1, len(errors_L1))
+print("Disparity L1 error = {:f}, number of valid pixels = {:d}".format(mean_L1, len(errors_L1)))
 if not skip_rephoto:
 	mean_rephoto = np.mean(errors_rephoto)
-	print "Rephoto error = {:f}, number of valid pixels = {:d}".format(mean_rephoto, len(errors_rephoto))
+	print("Rephoto error = {:f}, number of valid pixels = {:d}".format(mean_rephoto, len(errors_rephoto)))

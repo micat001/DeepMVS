@@ -84,18 +84,18 @@ if not os.path.exists(model_path):
 	raise ValueError("Cannot find the trained model. Please download it first or specify the path to the model.")
 
 # Load trained model.
-print >> log_file, "Loading the trained model..."
+print("Loading the trained model...", file=log_file)
 log_file.flush()
 model = DeepMVS(num_depths, use_gpu)
 model.load_state_dict(torch.load(os.path.join(model_path)))
-print >> log_file, "Successfully loaded the trained model."
+print("Successfully loaded the trained model." file=log_file)
 log_file.flush()
 
 # Load COLMAP sparse model.
-print >> log_file, "Loading the sparse model..."
+print("Loading the sparse model...", file=log_file)
 log_file.flush()
 sparse_model = ColmapSparse(sparse_path, image_path, image_width, image_height)
-print >> log_file, "Successfully loaded the sparse model."
+print("Successfully loaded the sparse model.", file=log_file)
 log_file.flush()
 
 # Launch plane-sweep volume generating thread.
@@ -113,25 +113,25 @@ worker_thread = threading.Thread(name = "generate_volume", target = generate_vol
 worker_thread.start()
 
 # Prepare VGG model and normalizer.
-print >> log_file, "Creating VGG model..."
+print("Creating VGG model...", file=log_file)
 log_file.flush()
 if use_gpu:
 	VGG_model = vision.models.vgg19(pretrained = True).cuda()
 else:
 	VGG_model = vision.models.vgg19(pretrained = True)
 VGG_normalize = vision.transforms.Normalize(mean = [0.485, 0.456, 0.406], std = [0.229, 0.224, 0.225])
-print >> log_file, "Successfully created VGG model."
+print("Successfully created VGG model.", file=log_file)
 log_file.flush()
 
 # Loop through all images.
 for (ref_image_idx, ref_image) in enumerate(sparse_model.image_list.images):
 	# Check if output already exists.
 	if not overwrite and os.path.exists(os.path.join(output_path, "{:}.output.npy".format(ref_image.filename))):
-		print >> log_file, "Skipped {:} since the output already exists.".format(ref_image.filename)
+		print("Skipped {:} since the output already exists.".format(ref_image.filename), file=log_file)
 		log_file.flush()
 		continue
 	# Start generating plane-sweep volume of the first patch.
-	print >> log_file, "Start working on image {:d}/{:d}.".format(ref_image_idx, sparse_model.image_list.length)
+	print("Start working on image {:d}/{:d}.".format(ref_image_idx, sparse_model.image_list.length), file=log_file)
 	log_file.flush()
 	shared_data["image_idx"] = ref_image_idx
 	shared_data["target_x"] = 0
@@ -187,7 +187,7 @@ for (ref_image_idx, ref_image) in enumerate(sparse_model.image_list.images):
 	row_total = (image_height - 2 * border_y - 1) / stride_height + 1
 	for row_idx in range(0, row_total):
 		for col_idx in range(0, col_total):
-			print >> log_file, "Working on patch at row = {:d}/{:d} col = {:d}/{:d}".format(row_idx, row_total, col_idx, col_total)
+			print("Working on patch at row = {:d}/{:d} col = {:d}/{:d}".format(row_idx, row_total, col_idx, col_total), file=log_file)
 			log_file.flush()
 			# Compute patch location for this patch and next patch.
 			if col_idx != col_total - 1:
@@ -267,7 +267,7 @@ for (ref_image_idx, ref_image) in enumerate(sparse_model.image_list.images):
 			# Copy the prediction to buffer.
 			predict_raw[..., copy_y_start:copy_y_end, copy_x_start:copy_x_end] = predict.data[0, :, copy_y_start - start_y:copy_y_end - start_y, copy_x_start - start_x:copy_x_end - start_x]
 	# Pass through DenseCRF.
-	print >> log_file, "Running DenseCRF..."
+	print("Running DenseCRF...", file=log_file)
 	log_file.flush()
 	unary_energy = F.log_softmax(Variable(predict_raw, volatile = True), dim = 0).data.numpy()
 	crf = dcrf.DenseCRF2D(image_width, image_height, num_depths)
@@ -283,7 +283,7 @@ for (ref_image_idx, ref_image) in enumerate(sparse_model.image_list.images):
 		os.makedirs(output_dir)
 	np.save(os.path.join(output_path, "{:}.output.npy".format(ref_image.filename)), new_predict)
 	imageio.imwrite(os.path.join(output_path, "{:}.output.png".format(ref_image.filename)), (new_predict / ref_image.estimated_max_disparity).clip(0.0, 1.0))
-	print >> log_file, "Result has been saved to {:}.".format(os.path.join(output_path, "{:}.output.npy".format(ref_image.filename)))
+	print ("Result has been saved to {:}.".format(os.path.join(output_path, "{:}.output.npy".format(ref_image.filename))), file=log_file)
 	log_file.flush()
 
 # Terminate worker threads.
@@ -291,5 +291,5 @@ shared_data["stop"] = True
 shared_data["start_e"].set()
 
 # Finished.
-print >> log_file, "Finished running DeepMVS."
-print >> log_file, "Results can be found in {:}".format(output_path)
+print("Finished running DeepMVS.", file=log_file)
+print("Results can be found in {:}".format(output_path), file=log_file)
