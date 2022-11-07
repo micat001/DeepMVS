@@ -189,8 +189,8 @@ class ColmapSparse:
 				target_image_height = image_height
 			width_ratio = float(target_image_width) / orig_image_width
 			height_ratio = float(target_image_height) / orig_image_height
-			self.camera_list.cameras[camera_idx].width = target_image_width
-			self.camera_list.cameras[camera_idx].height = target_image_height
+			self.camera_list.cameras[camera_idx].width = int(target_image_width)
+			self.camera_list.cameras[camera_idx].height = int(target_image_height)
 			self.camera_list.cameras[camera_idx].fx *= width_ratio
 			self.camera_list.cameras[camera_idx].fy *= height_ratio
 			self.camera_list.cameras[camera_idx].cx *= width_ratio

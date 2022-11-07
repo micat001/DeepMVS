@@ -106,3 +106,5 @@ ENV/
 # datasets
 dataset/
 model/
+
+.history/*

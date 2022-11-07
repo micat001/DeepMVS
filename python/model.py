@@ -239,10 +239,10 @@ class DeepMVS(nn.Module):
 				layer_b8x_out = layer_b8x_out.repeat(num_neighbors, 1, 1, 1)
 				layer_b16x_out = layer_b16x_out.repeat(num_neighbors, 1, 1, 1)
 		layer_2_d16x_out = self.layer_2_d16x(torch.cat((layer_2_e16x_out, layer_b16x_out), 1))
-		layer_2_d8x_out = self.layer_2_d8x(torch.cat((layer_2_e8x_out, F.upsample(layer_2_d16x_out, scale_factor=2, mode='bilinear'), layer_b8x_out), 1))
-		layer_2_d4x_out = self.layer_2_d4x(torch.cat((layer_2_e4x_out, F.upsample(layer_2_d8x_out, scale_factor=2, mode='bilinear'), layer_b4x_out), 1))
-		layer_2_d2x_out = self.layer_2_d2x(torch.cat((layer_2_e2x_out, F.upsample(layer_2_d4x_out, scale_factor=2, mode='bilinear'), layer_b2x_out), 1))
-		layer_2_d1x_out = self.layer_2_d1x(torch.cat((layer_2_e1x_out, F.upsample(layer_2_d2x_out, scale_factor=2, mode='bilinear'), layer_b1x_out), 1))
+		layer_2_d8x_out = self.layer_2_d8x(torch.cat((layer_2_e8x_out, F.interpolate(layer_2_d16x_out, scale_factor=2, mode='bilinear'), layer_b8x_out), 1))
+		layer_2_d4x_out = self.layer_2_d4x(torch.cat((layer_2_e4x_out, F.interpolate(layer_2_d8x_out, scale_factor=2, mode='bilinear'), layer_b4x_out), 1))
+		layer_2_d2x_out = self.layer_2_d2x(torch.cat((layer_2_e2x_out, F.interpolate(layer_2_d4x_out, scale_factor=2, mode='bilinear'), layer_b2x_out), 1))
+		layer_2_d1x_out = self.layer_2_d1x(torch.cat((layer_2_e1x_out, F.interpolate(layer_2_d2x_out, scale_factor=2, mode='bilinear'), layer_b1x_out), 1))
 		return layer_2_d1x_out.view(batch_size, num_neighbors, 800, height, width)
 
 	def forward_predict(self, aggregated_feature):
